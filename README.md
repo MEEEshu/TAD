@@ -1,2 +1,1 @@
-# Facultate
-# Facultate
+#Academic usage
