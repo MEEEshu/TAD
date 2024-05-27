@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informații Meteo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    .result {
+        margin-top: 20px;
+    }
+
+    .result p {
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    #numar_requesturi {
+        color: #888;
+    }
+
+    #data_ora {
+        color: #888;
+    }
+</style>
+</head>
+<body>
+    <h1>Informații Meteo</h1><div class="container">
+        <label for="latitudine">Latitudine:</label>
+        <input type="text" id="latitudine" placeholder="Latitudine">
+    
+        <label for="longitudine">Longitudine:</label>
+        <input type="text" id="longitudine" placeholder="Longitudine">
+    
+        <button onclick="getWeather()">Obține informații</button>
+    
+        <div class="result">
+            <p id="oras">Orașul: <span id="city"></span></p>
+            <p id="populatie">Populație: <span id="population"></span></p>
+            <p id="temperatura">Temperatura: <span id="temperature"></span>°C</p>
+            <p id="umiditate">Umiditate: <span id="humidity"></span>%</p>
+            <p id="numar_requesturi">Număr de request-uri: <span id="request_count">0</span></p>
+            <p id="data_ora">Data și ora: <span id="datetime"></span></p>
+        </div>
+    </div>
+    
+    <script>
+    // Funcție pentru a adăuga un zero în fața numerelor mai mici decât 10
+    function padZero(num) {
+        return num < 10 ? `0${num}` : num;
+    }
+    
+    // Actualizare data și ora o dată pe secundă
+    setInterval(() => {
+        const now = new Date();
+        const datetimeString = `${now.getFullYear()}-${padZero(now.getMonth() + 1)}-${padZero(now.getDate())} ${padZero(now.getHours())}:${padZero(now.getMinutes())}:${padZero(now.getSeconds())}`;
+        document.getElementById('datetime').textContent = datetimeString;
+    }, 1000);
+    
+    let requestCount = 0; // Inițializăm counter-ul de request-uri
+    
+    function getWeather() {
+        const latitudine = document.getElementById('latitudine').value;
+        const longitudine = document.getElementById('longitudine').value;
+        const api_key_openweathermap = '5d3293c93dbdd7f72c412b81cc5a5259';
+        const api_key_airvisual = '41ed48c0-9c02-4d7a-8e77-1cbfcfff1713';
+        const api_key_api_ninjas = 'A5oYGIf8UgK9vC0ZL0e12g==jZ8fdWw8jy7Guyrd';
+    
+        // Incrementăm counter-ul de request-uri la fiecare apel al funcției
+        requestCount++;
+        document.getElementById('request_count').textContent = requestCount;
+    
+        // Apelul către API pentru obținerea orașului
+        const city_api_call = `http://api.airvisual.com/v2/nearest_city?lat=${latitudine}&lon=${longitudine}&key=${api_key_airvisual}`;
+    
+        fetch(city_api_call)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('A apărut o problemă la obținerea datelor despre oraș.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Afișare oraș
+                document.getElementById('city').textContent = data.data.city;
+    
+                // Apelul către API pentru obținerea populației
+                const city_name = encodeURIComponent(data.data.city);
+                const population_api_call = `https://api.api-ninjas.com/v1/city?name=${city_name}&X-Api-Key=${api_key_api_ninjas}`;
+                
+                fetch(population_api_call)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('A apărut o problemă la obținerea datelor despre populație.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Afișare populație
+                        document.getElementById('population').textContent = data[0].population;
+                    })
+                    .catch(error => {
+                        console.error('Eroare:', error.message);
+                        document.getElementById('population').textContent = 'n/a';
+                    });
+            })
+            .catch(error => {
+                console.error('Eroare:', error.message);
+                document.getElementById('city').textContent = 'n/a';
+            });
+    
+        // Apelul către API pentru obținerea informațiilor meteorologice
+        const weather_api_call = `https://api.openweathermap.org/data/3.0/onecall/timemachine?lat=${latitudine}&lon=${longitudine}&dt=1643803200&appid=${api_key_openweathermap}`;
+    
+        fetch(weather_api_call)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('A apărut o problemă la obținerea datelor meteorologice.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Afișare temperatură (convertită din Kelvin în Celsius)
+                const temperature = (data.data[0].temp - 273).toFixed(2);
+                document.getElementById('temperature').textContent = temperature;
+    
+                // Afișare umiditate
+                const humidity = data.data[0].humidity;
+                document.getElementById('humidity').textContent = humidity;
+            })
+            .catch(error => {
+                console.error('Eroare:', error.message);
+                document.getElementById('temperature').textContent = 'n/a';
+                document.getElementById('humidity').textContent = 'n/a';
+            });
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Car API Interface</title>
+    <script>
+        async function makeRequest(method, endpoint, data = null) {
+            const url = `http://127.0.0.1:5555/api/cars${endpoint}`;
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            };
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                document.getElementById('response').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = error;
+            }
+        }
+
+        function getCars() {
+            makeRequest('GET', '');
+        }
+
+        function getCarById() {
+            const id = document.getElementById('carId').value;
+            makeRequest('GET', `/${id}`);
+        }
+
+        function addCar() {
+            const brand = document.getElementById('brand').value;
+            const model = document.getElementById('model').value;
+            const an = document.getElementById('an').value;
+            makeRequest('POST', '', { brand, model, an });
+        }
+
+        function updateCar() {
+            const id = document.getElementById('updateCarId').value;
+            const brand = document.getElementById('updateBrand').value;
+            const model = document.getElementById('updateModel').value;
+            const an = document.getElementById('updateAn').value;
+            makeRequest('PUT', `/${id}`, { brand, model, an });
+        }
+
+        function deleteCar() {
+            const id = document.getElementById('deleteCarId').value;
+            makeRequest('DELETE', `/${id}`);
+        }
+    </script>
+</head>
+<body>
+    <h1>Car API Interface</h1>
+    
+    <button onclick="getCars()">Get All Cars</button>
+    <br/><br/>
+    
+    <input type="number" id="carId" placeholder="Car ID"/>
+    <button onclick="getCarById()">Get Car by ID</button>
+    <br/><br/>
+    
+    <input type="text" id="brand" placeholder="Brand"/>
+    <input type="text" id="model" placeholder="Model"/>
+    <input type="number" id="an" placeholder="Year"/>
+    <button onclick="addCar()">Add Car</button>
+    <br/><br/>
+    
+    <input type="number" id="updateCarId" placeholder="Car ID to Update"/>
+    <input type="text" id="updateBrand" placeholder="New Brand"/>
+    <input type="text" id="updateModel" placeholder="New Model"/>
+    <input type="number" id="updateAn" placeholder="New Year"/>
+    <button onclick="updateCar()">Update Car</button>
+    <br/><br/>
+    
+    <input type="number" id="deleteCarId" placeholder="Car ID to Delete"/>
+    <button onclick="deleteCar()">Delete Car</button>
+    <br/><br/>
+    
+    <pre id="response"></pre>
+</body>
+</html>

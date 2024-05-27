@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistem de Gestionare a Mașinilor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #555;
+        }
+        button {
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        input[type="number"],
+        input[type="text"] {
+            padding: 8px;
+            margin: 4px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        pre {
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sistem de Gestionare a Mașinilor</h1><!-- Secțiunea de Afișare a Tuturor Mașinilor -->
+    <div>
+        <h2>Arată toate mașinile</h2>
+        <button onclick="getCars()">Arată toate mașinile</button>
+        <pre id="carList"></pre>
+    </div>
+    
+    <!-- Secțiunea de Adăugare a Mașinilor -->
+    <div>
+        <h2>Adaugă Mașină</h2>
+        <label for="brand">Marcă:</label>
+        <input type="text" id="brand" placeholder="Marcă">
+        <br>
+        <label for="model">Model:</label>
+        <input type="text" id="model" placeholder="Model">
+        <br>
+        <label for="year">An:</label>
+        <input type="number" id="year" placeholder="An">
+        <br>
+        <button onclick="addCar()">Adaugă Mașină</button>
+    </div>
+    
+    <!-- Secțiunea de Actualizare a Mașinilor -->
+    <div>
+        <h2>Actualizează sau adaugă Mașină</h2>
+        <label for="updateCarId">ID-ul Mașinii de Actualizat:</label>
+        <input type="number" id="updateCarId" placeholder="ID-ul Mașinii">
+        <br>
+        <label for="updateBrand">Noua Marcă:</label>
+        <input type="text" id="updateBrand" placeholder="Noua Marcă">
+        <br>
+        <label for="updateModel">Noul Model:</label>
+        <input type="text" id="updateModel" placeholder="Noul Model">
+        <br>
+        <label for="updateYear">Noul An:</label>
+        <input type="number" id="updateYear" placeholder="Noul An">
+        <br>
+        <button onclick="updateCar()">Actualizează sau adaugă Mașină</button>
+    </div>
+    
+    <!-- Secțiunea de Ștergere a Mașinilor -->
+    <div>
+        <h2>Șterge Mașină</h2>
+        <label for="deleteCarId">ID-ul Mașinii de Șters:</label>
+        <input type="number" id="deleteCarId" placeholder="ID-ul Mașinii">
+        <br>
+        <button onclick="deleteCar()">Șterge Mașină</button>
+    </div>
+    
+    <!-- Afișează Data și Ora Curentă -->
+    <div>
+        <h2>Data și Ora Curentă:</h2>
+        <p id="currentDateTime"></p>
+    </div>
+    
+    <!-- Afișează Numărul de Cereri -->
+    <div>
+        <h2>Numărul de Cereri:</h2>
+        <p id="requestCount">0</p>
+    </div>
+    
+    <script>
+        function getCars() {
+            fetch('http://127.0.0.1:5555/api/cars')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('carList').textContent = JSON.stringify(data, null, 2);
+                updateRequestCount(); // Actualizează numărul de cereri după o cerere reușită
+            })
+            .catch(error => console.error('Eroare:', error));
+        }
+    
+        function addCar() {
+            const brand = document.getElementById('brand').value;
+            const model = document.getElementById('model').value;
+            const year = document.getElementById('year').value;
+    
+            fetch('http://127.0.0.1:5555/api/cars', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ brand: brand, model: model, an: year }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Succes:', data);
+                updateRequestCount(); // Actualizează numărul de cereri după o cerere reușită
+            })
+            .catch(error => console.error('Eroare:', error));
+        }
+    
+        function updateCar() {
+            const id = document.getElementById('updateCarId').value;
+            const brand = document.getElementById('updateBrand').value;
+            const model = document.getElementById('updateModel').value;
+            const year = document.getElementById('updateYear').value;
+    
+            fetch(`http://127.0.0.1:5555/api/cars/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ brand: brand, model: model, an: year }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Succes:', data);
+                updateRequestCount(); // Actualizează numărul de cereri după o cerere reușită
+            })
+            .catch(error => console.error('Eroare:', error));
+        }
+    
+        function deleteCar() {
+            const carId = document.getElementById('deleteCarId').value;
+    
+            fetch(`http://127.0.0.1:5555/api/cars/${carId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Succes:', data);
+                updateRequestCount(); // Actualizează numărul de cereri după o cerere reușită
+            })
+            .catch(error => console.error('Eroare:', error));
+        }
+    
+        // Afișează data și ora curentă
+        function displayCurrentDateTime() {
+            const currentDate = new Date();
+            document.getElementById('currentDateTime').textContent = currentDate.toLocaleString();
+        }
+        
+        // Actualizează data și ora curentă la fiecare secundă
+        setInterval(displayCurrentDateTime, 1000);
+    
+        // Actualizează numărul de cereri
+        function updateRequestCount() {
+            const requestCountElement = document.getElementById('requestCount');
+            let currentCount = parseInt(requestCountElement.textContent);
+            currentCount++;
+            requestCountElement.textContent = currentCount;
+        }
+    </script>
+</body>
+</html>

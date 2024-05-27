@@ -1,0 +1,8 @@
+[
+    {"id": 1, "parametru":"temperatura", "valoare": 23.5},
+    {"id": 2, "parametru":"umiditate", "valoare": 63.5},
+    {"id": 3, "parametru":"lumina", "valoare": 80},
+    {"id": 4, "parametru":"grad_confort", "valoare": 87}
+]
+
+    
