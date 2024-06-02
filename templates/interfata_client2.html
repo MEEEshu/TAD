@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfață Client</title>
+</head>
+<body>
+    <h1>Date Meteo</h1>
+    <button onclick="getTemperatureData()">Temperatura</button>
+    <br><br>
+    <button onclick="getHumidityData()">Umiditate</button>
+    <br><br>
+    <button onclick="getAirQualityData()">Calitatea Aerului</button>
+    <br><br>
+    <button onclick="getSensorData()">Senzor</button>
+    
+    <script>
+        function makeRequest(method, url, callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    callback(null, data);
+                } else {
+                    callback(xhr.status);
+                }
+            };
+            xhr.onerror = function() {
+                callback('Error making request.');
+            };
+            xhr.send();
+        }
+
+        function getWeatherData() {
+            makeRequest('GET', '/meteo', function(err, data) {
+                if (err) {
+                    console.error('Error:', err);
+                } else {
+                    console.log('Date Meteo:', data);
+                    alert(JSON.stringify(data, null, 2));
+                }
+            });
+        }
+
+        function getTemperatureData() {
+            makeRequest('GET', '/meteo/temperatura', function(err, data) {
+                if (err) {
+                    console.error('Error:', err);
+                } else {
+                    console.log('Temperatura:', data);
+                    alert('Temperatura: ' + data.temperatura);
+                }
+            });
+        }
+
+        function getHumidityData() {
+            makeRequest('GET', '/meteo/umiditate', function(err, data) {
+                if (err) {
+                    console.error('Error:', err);
+                } else {
+                    console.log('Umiditate:', data);
+                    alert('Umiditate: ' + data.umiditate);
+                }
+            });
+        }
+
+        function getAirQualityData() {
+            makeRequest('GET', '/meteo/calitateaer', function(err, data) {
+                if (err) {
+                    console.error('Error:', err);
+                } else {
+                    console.log('Calitatea Aerului:', data);
+                    alert('Calitatea Aerului: ' + data.calitate_aer);
+                }
+            });
+        }
+
+        function getSensorData() {
+            makeRequest('GET', '/meteo/senzor', function(err, data) {
+                if (err) {
+                    console.error('Error:', err);
+                } else {
+                    console.log('Senzor:', data);
+                    alert('Valoare Senzor MQ135: ' + data.valoare_senzor_mq135);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
