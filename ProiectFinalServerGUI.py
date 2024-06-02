@@ -2,57 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 import sqlite3
 import requests
 
-#api pentru umiditate, temperatura, si temperatura resimtita
-api_key = '5d3293c93dbdd7f72c412b81cc5a5259'
-#api pentru determinarea locatiei
-api_key_oras = '41ed48c0-9c02-4d7a-8e77-1cbfcfff1713'
-#api pt populatie, este apelata cu cheia de mai sus 
-api_key_populatie = 'A5oYGIf8UgK9vC0ZL0e12g==jZ8fdWw8jy7Guyrd'
 
-def temperatura():
-    try:
-        #date latitudine
-        dateLatitudine = latitudinea.get()
-        #date longitudine
-        dateLongitudine = longitudinea.get()
-        #apelam api pentru temperaturi si umiditate
-        api_call = f'https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={dateLatitudine}&lon={dateLongitudine}&dt=1643803200&appid={api_key}'
-        #apelam api pentru detectarea orasului
-        api_call_oras = f'http://api.airvisual.com/v2/nearest_city?lat={dateLatitudine}&lon={dateLongitudine}&key=41ed48c0-9c02-4d7a-8e77-1cbfcfff1713'
-        #primim request cu date meteorologice
-        weather_data = requests.get(api_call).json()#['data']
-        #primim request cu date legate de oras
-        oras_data = requests.get(api_call_oras).json()['data']['city']
-        #afisam orasul
-        label_text0.set(oras_data)
-        #apelam api pentru a determina populatia
-        api_url = f'https://api.api-ninjas.com/v1/city?name={oras_data}&X-Api-Key={api_key_populatie}'
-        #dam request la date pentru populatie
-        populatie = requests.get(api_url).json()
-        #afisam datele pt populatie apelate de la api api_call_oras
-        prem = populatie[0]['population']
-        label_textpop.set(prem)
-        #conditiile pentru checkboxes - temperatura
-        if checktemp.get():
-            temp = int(weather_data['data'][0]['temp']) - 273
-            label_text1.set("Temperatura: " + str(temp) + "°C")
-        else:
-            label_text1.set(" ")
-        #conditiile pentru checkboxes - umiditate
-        if checkhum.get():
-            humidity = str(weather_data['data'][0]['humidity']) + "%"
-            label_text2.set("Umiditate: " + humidity)
-        else:
-            label_text2.set(" ")
-        #conditiile pentru checkboxes - temperatura resimtita
-        if checktempresim.get():
-            feels_like = int(weather_data['data'][0]['feels_like']) - 273
-            label_text3.set("Temperatura resimțită: " + str(feels_like) + "°C")
-        else:
-            label_text3.set(" ")
-    #lansam o exceptie in caz de try va esua
-    except KeyError:
-        message = 'A apărut o problemă, rezolva'
 
 # Inițializarea aplicației Flask
 app = Flask(__name__)
@@ -85,8 +35,6 @@ def serve_interface_masini():
 def serve_interface_api():
     return send_from_directory('.', 'interfata_clientv2.html')
 
-
-# Restul codului dvs. rămâne neschimbat...
 
 # Endpoint pentru obținerea tuturor mașinilor din baza de date
 @app.route('/api/cars', methods=['GET'])

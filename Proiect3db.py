@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 import sqlite3
 
 # Inițializarea aplicației Flask
@@ -15,13 +15,6 @@ def home():
 def Username(username):
     print('primit:', username)
     return f"<h3>Bine ai venit pe pagina mea {username}!</h3> Sper să-ți placă. Wish you well </br>"
-
-# Endpoint pentru a servi fișierul HTML
-@app.route('/interface')
-def serve_interface():
-    return send_from_directory('.', 'interfata_client.html')
-
-# Restul codului dvs. rămâne neschimbat...
 
 # Endpoint pentru obținerea tuturor mașinilor din baza de date
 @app.route('/api/cars', methods=['GET'])
